@@ -1,28 +1,36 @@
 import asyncio 
 import websockets
 
-
 connected_users = set()
 
-async def handler(websocket):
-    connected_users.add(websocket)
+async def receive_messages(websocket):
+
     try:
         async for message in websocket:
-            for user in connected_users:
-                print(f"received: {message}")
-                if user != websocket:
-                    await user.send(message)
-    except websockets.exceptions.ConnectionClosed:
+                print(f"Client: {message}")
+                await websocket.send(f"Server received: {message}")
+
+    except websockets.ConnectionClosed:
         print("Client disconnected..")
-    finally:
-        connected_users.remove(websocket)
+    
+async def send_messages(websocket):
+    try:
+        while True:
+            msg = input("Server: ")
+            await websocket.send(msg)
+    except websockets.ConnectionClosed:
+        print("Cant send, client disconnected")
+
+async def handler(websocket):
+    await asyncio.gather(
+        receive_messages(websocket),
+        send_messages(websocket)
+    )
 
 async def main():
-    async with websockets.serve(handler, "localhost", 9002):
-        print("Server started on ws://localhost:9002")
-    
+    async with websockets.serve(handler, "localhost", 9003):
+        print("Server stared on ws://localhost:9002")
         await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
