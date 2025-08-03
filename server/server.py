@@ -3,11 +3,14 @@ import websockets
 
 connected_users = set()
 
-async def receive_messages(websocket):
 
+def print_with_prompt(msg):
+    print(f"\r{msg}\n Server: ", end="", flush = True)
+
+async def receive_messages(websocket):
     try:
         async for message in websocket:
-                print(f"Client: {message}")
+                print_with_prompt(f" Client says: {message}")
                 await websocket.send(f"Server received: {message}")
 
     except websockets.ConnectionClosed:
@@ -16,7 +19,7 @@ async def receive_messages(websocket):
 async def send_messages(websocket):
     try:
         while True:
-            msg = input("Server: ")
+            msg = await asyncio.to_thread(input, " Server: ")
             await websocket.send(msg)
     except websockets.ConnectionClosed:
         print("Cant send, client disconnected")
@@ -28,7 +31,7 @@ async def handler(websocket):
     )
 
 async def main():
-    async with websockets.serve(handler, "localhost", 9003):
+    async with websockets.serve(handler, "localhost", 9002):
         print("Server stared on ws://localhost:9002")
         await asyncio.Future()
 

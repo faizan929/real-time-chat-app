@@ -7,7 +7,7 @@ async def listen_and_send(uri):
         async def send():
             try:
                 while True:
-                    msg = input("You:")
+                    msg = await asyncio.to_thread(input, " Client: ")
                     if msg.lower() == "exit":
                         await websocket.close()
                         break
@@ -19,11 +19,11 @@ async def listen_and_send(uri):
             try:
                 while True:
                     response = await websocket.recv()
-                    print(f"\nServer: {response}")
+                    print(f"\n  Server says: {response}\n Client: ", end="")
             except websockets.ConnectionClosed:
                 print("Disconnected from server")
                
         await asyncio.gather(send(), receive())
 
 if __name__ == "__main__":
-    asyncio.run(listen_and_send("ws://localhost:9003"))
+    asyncio.run(listen_and_send("ws://localhost:9002"))
