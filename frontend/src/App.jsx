@@ -19,7 +19,7 @@ function App(){
     {!user? (
       <Login onLogin = {(username) => setUser(username)} />
     ): (
-      <div>Welcome, {user}</div>
+      <ChatLayout user={user}/>
     )}
     </>
   );
