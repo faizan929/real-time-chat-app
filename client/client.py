@@ -1,9 +1,12 @@
 import asyncio
 import websockets
 
+
+username = input("Enter your username:")
 async def listen_and_send(uri):
     async with websockets.connect(uri) as websocket:
         print("Connected to Server")  
+        await websocket.send(f"[USERNAME]{username}")
         async def send():
             try:
                 while True:
