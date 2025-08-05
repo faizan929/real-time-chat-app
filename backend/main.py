@@ -30,10 +30,10 @@ async def websocket_endpoint(websocket: WebSocket):
             parsed = json.loads(data)
             response = {
                 "user": "server", 
-                "message": f"you said: {parsed.get('message', '')}" 
+                "message": f"Frontend said: {parsed.get('message', '')}" 
             }
             
-            
+            print("responding with", response) 
             await websocket.send_text(json.dumps(response))
                
         except WebSocketDisconnect:

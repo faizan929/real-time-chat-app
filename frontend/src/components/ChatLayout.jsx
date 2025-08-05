@@ -5,10 +5,19 @@ import React, {useState, useEffect, useRef} from "react";
 function ChatLayout({user}) {
 
     const [messages, setMessages] = useState([]);
+    // first one is the state variable and the second is the function to update it
+    //useState is immutable
     const [input, setInput] = useState("");
+    //useRef() : mutable and does not trigger the re-render
     const socket = useRef(null);
 
 
+//useEffect:
+// it is used to perform side effect
+// let us synchronize with the system outside the react
+// two types of side effects
+// event based and render based effects
+// (can use eventhandler directly instead of useEffect)
 
     useEffect(() => {
 
@@ -26,6 +35,8 @@ function ChatLayout({user}) {
         };
 
         ws.onmessage = (event) => {
+            console.log("onmessage firing")
+            console.log("i am receiving", event.data)
             const data = JSON.parse(event.data);
             setMessages((prev) => [...prev, data]);
 
@@ -41,13 +52,14 @@ function ChatLayout({user}) {
 }, []);
  
         const sendMessage = () => {
-            if (ws && input.trim()) {
+            if (socket.current && input.trim()) {
                 const message = {
                     user: user || "Anonymous",
                     message: input.trim(),
                 };
-                if(ws?.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify(message));
+                if(socket.current?.readyState === WebSocket.OPEN) {
+                    console.log("Sending", message);
+                    socket.current.send(JSON.stringify(message));
                 } 
                 // setMessages((prev) => [...prev, message]);
                 setInput("");
