@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 # orm : object relation model
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -8,7 +8,7 @@ from database import Base, engine, SessionLocal
 from pydantic import BaseModel, EmailStr
 
 
-app = FastAPI()
+router = APIRouter()  # app= FastAPI ==>> app.get, app.post
 
 
 Base.metadata.create_all(bind = engine)
@@ -24,6 +24,7 @@ def get_db():
         db.close()
 
 class RegisterRequest(BaseModel):
+
     name : str
     email: EmailStr
     password: str
@@ -31,7 +32,7 @@ class RegisterRequest(BaseModel):
 
 # pehla route  .post
 
-@app.post('/register')
+@router.post('/register')
 def register_user(user:RegisterRequest, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == user.email).first()
     if existing:
@@ -46,4 +47,8 @@ def register_user(user:RegisterRequest, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message :" "user registered successfully "} 
+    return {
+        "message" : "user registered successfully ",
+        "user_id" : new_user.id,
+        "email" : new_user.email
+            } 

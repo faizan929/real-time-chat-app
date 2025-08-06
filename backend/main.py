@@ -3,8 +3,17 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import json
+from routes import registerRoutes
+from database import engine, Base
+import models
+
+Base.metadata.create_all(bind = engine)
 
 app = FastAPI()
+
+
+app.include_router(registerRoutes.router)
+
 
 # FRONTEND WILL ACCESS THE BACKEND HERE
 
@@ -42,3 +51,8 @@ async def websocket_endpoint(websocket: WebSocket):
             print(f"Websocket error: {e}")
             break
     
+
+if __name__ == "__main__":
+    import uvicorn 
+    uvicorn.run(app, host = '127.0.0.1', port = 8000)
+
