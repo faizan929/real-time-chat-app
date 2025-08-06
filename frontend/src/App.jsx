@@ -1,7 +1,8 @@
 
 import {useEffect, useState} from "react"
-import Login from "./components/Login";
 import ChatLayout from "./components/ChatLayout";
+import LoginForm from "./components/LoginForm";
+
 
 function App(){
   const [message, setMessage] = useState("Loading..");
@@ -16,11 +17,13 @@ function App(){
 
   return (
     <>
+    <h1>Welcom to Whatsapp Clone </h1>
+    <p>{message}</p>
     {!user? (
-      <Login onLogin = {(username) => setUser(username)} />
+      <LoginForm onLogin = {setUser} />
     ): (
-      <ChatLayout user={user}/>
-    )}
+      <ChatLayout user = {user} />
+    )} 
     </>
   );
 }
