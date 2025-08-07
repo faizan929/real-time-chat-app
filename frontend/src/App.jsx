@@ -1,12 +1,23 @@
 
 import {useEffect, useState} from "react"
+
 import ChatLayout from "./components/ChatLayout";
 import LoginForm from "./components/LoginForm";
+
+
+
+
+
 
 
 function App(){
   const [message, setMessage] = useState("Loading..");
   const [user, setUser] = useState(null);
+  
+
+  const onLogin = (userData) => {
+      setUser(userData);
+  }
 
   useEffect(() => {
     fetch("http://localhost:8000/")
@@ -17,12 +28,12 @@ function App(){
 
   return (
     <>
-    <h1>Welcom to Whatsapp Clone </h1>
+    <h1>Whatsapp Clone</h1>
     <p>{message}</p>
     {!user? (
-      <LoginForm onLogin = {setUser} />
+      <LoginForm onLogin = {onLogin}/>
     ): (
-      <ChatLayout user = {user} />
+      <ChatLayout user = {user}/>
     )} 
     </>
   );

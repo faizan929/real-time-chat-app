@@ -3,11 +3,17 @@
 // useState is a react hook that lets one to manage the states
 // simply useState is like a box where one can store value and can change
 // important property : it triggers re-render
-    
-import React, {useState} from "react"
+
+import React, {useState} from "react";
+// import {useNavigate} from "react-router-dom";
+
 
 //  loginform as == react functional component
-function LoginForm() {
+
+// const navigate = useNavigate;
+
+
+function LoginForm( {onLogin} ) {
     // set up state
     //formData is an object that holds the value 
     //setFormData updates the value (i.e., formData object)
@@ -17,6 +23,7 @@ function LoginForm() {
         password: ''
     });
 
+  
     function handleChange(event){
         //event.target : the thing that triggered the change 
         const {name, value} = event.target;
@@ -50,7 +57,12 @@ function LoginForm() {
                 return;
                 
             } 
+
+            // navigate('/ChatLayout ');
+            onLogin(formData);
             console.log("Registration Successful");
+           
+
             
         } catch(error){
             console.error("Something went wrong", error);

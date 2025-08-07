@@ -1,7 +1,7 @@
 
 
 import React, {useState, useEffect, useRef} from "react";
-
+import SideBar from './SideBar'
 function ChatLayout({user}) {
 
     const [messages, setMessages] = useState([]);
@@ -20,20 +20,30 @@ function ChatLayout({user}) {
 // (can use eventhandler directly instead of useEffect)
 
     useEffect(() => {
+        // code inside the useEffect hook runs when the component is mounted
+        // it is a trigger
 
-       
         console.log("initializing the socket");
         const ws = new WebSocket("ws://localhost:8000/ws");
         socket.current = ws;
 
         ws.onopen = () => {
             console.log(" websockect connected");
+
+            ws.send(JSON.stringify({
+                user: user,
+                type: "connect",
+                message: "User connected"
+                
+            }));
         };
 
         ws.onerror = (err) => {
             console.error("Websocket error", err);
         };
-
+        
+        // frontend is listening from the backend
+        
         ws.onmessage = (event) => {
             console.log("onmessage firing")
             console.log("i am receiving", event.data)
@@ -49,8 +59,10 @@ function ChatLayout({user}) {
         
     
     return () => ws?.close();
-}, []);
- 
+}, [user]);
+
+
+
         const sendMessage = () => {
             if (socket.current && input.trim()) {
                 const message = {
@@ -72,7 +84,8 @@ function ChatLayout({user}) {
         }
 
         return (
-            <div className = "flex flex-col h-screen">
+            <div className = "flex h-screen">
+                <SideBar />
                 <div className = "flex-1 overflow-y-auto p-4">
                     {messages.map((msg, idx) => (
                         <div key = {idx}>

@@ -29,6 +29,9 @@ app.add_middleware(
 def read_root():
     return {"message": "FastAPI is running"}
 
+connected_users = {}
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -37,16 +40,34 @@ async def websocket_endpoint(websocket: WebSocket):
         try:
             data = await websocket.receive_text()
             parsed = json.loads(data)
+            username = parsed.get("user")
+            connected_users[username] = websocket
             response = {
                 "user": "server", 
                 "message": f"Frontend said: {parsed.get('message', '')}" 
             }
             
             print("responding with", response) 
-            await websocket.send_text(json.dumps(response))
+            user_list = list(connected_users.keys())
+            for ws in connected_users.values():
+                await ws.send_text(json.dumps({
+                    "type" : "user_list",
+                    "users" : user_list
+                }) 
+)
+            
                
         except WebSocketDisconnect:
             print("Client Disconnected ")
+            disconnected_user = None
+            for name, ws in connected_users.items():
+                if ws == websocket:
+                    disconnected_user = name
+                    break
+           
+            if disconnected_user:
+                connected_users.pop(disconnected_user)
+
         except Exception as e:
             print(f"Websocket error: {e}")
             break
