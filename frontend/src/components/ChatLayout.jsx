@@ -45,7 +45,7 @@ function ChatLayout({user}) {
         // frontend is listening from the backend
         
         ws.onmessage = (event) => {
-            console.log("onmessage firing")
+            console.log("onmessage is firing")
             console.log("i am receiving", event.data)
             const data = JSON.parse(event.data);
             setMessages((prev) => [...prev, data]);

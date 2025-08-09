@@ -6,6 +6,7 @@ import json
 from routes import registerRoutes
 from database import engine, Base
 import models
+from routes import userRoutes
 
 Base.metadata.create_all(bind = engine)
 
@@ -13,6 +14,7 @@ app = FastAPI()
 
 
 app.include_router(registerRoutes.router)
+app.include_router(userRoutes.router)
 
 
 # FRONTEND WILL ACCESS THE BACKEND HERE

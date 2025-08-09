@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 from models import User
 from database import Base, engine, SessionLocal
 from pydantic import BaseModel, EmailStr
+from database import get_db
 
 
 router = APIRouter()  # app= FastAPI ==>> app.get, app.post
@@ -16,12 +17,7 @@ Base.metadata.create_all(bind = engine)
 pwd_context = CryptContext(schemes = ["bcrypt"], deprecated = "auto")
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 class RegisterRequest(BaseModel):
 
