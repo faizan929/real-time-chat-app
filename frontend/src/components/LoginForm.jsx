@@ -68,6 +68,31 @@ function LoginForm( {onLogin} ) {
             console.error("Something went wrong", error);
         }
     };
+
+    const handleLogin = async (event) => {
+        event.preventDefault();
+        try{
+            const response = await fetch("http://127.0.0.1:8000/login",{
+                method: 'POST',
+                headers: {
+                    'Content-Type' :"application/json",
+                }, 
+                body: JSON.stringify({
+                    email : formData.email,
+                    password: formData.password
+                }),
+            });
+            if (!response.ok){
+                alert("Invalid Credentials");
+                return;
+            }
+
+            onLogin(formData);
+            console.log("Login successful")
+        }catch(error){
+            console.error("Login error", error)
+        }
+    };
         
     return(
         <>
@@ -96,7 +121,8 @@ function LoginForm( {onLogin} ) {
             onChange = {handleChange} 
         />
 
-            <button type = "submit">Submit</button>
+            <button type = "submit" onClick = {handleSubmit}>Register</button>
+            <button type = "button" onClick = {handleLogin}>Login</button>
         </form>
       
         </>

@@ -3,7 +3,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import SideBar from './SideBar';
 import ChatWindow from './ChatWindow';
-function ChatLayout({user}) {
+function ChatLayout({user, onLogout }) {
 
     const [messages, setMessages] = useState([]);
     // first one is the state variable and the second is the function to update it
@@ -150,6 +150,12 @@ function ChatLayout({user}) {
                     sendMessage = {sendMessage}
                     selectedUser = {selectedUser}
                     />
+                </div>
+
+                <div>
+                    <h2>Welcome {user.name || user.email} </h2>
+
+                    <button onClick = {onLogout}>Logout</button>
                 </div>
             </div>
             

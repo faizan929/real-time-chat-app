@@ -25,8 +25,11 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
      
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
 
-# pehla route  .post
+
 
 @router.post('/register')
 def register_user(user:RegisterRequest, db: Session = Depends(get_db)):
@@ -48,3 +51,20 @@ def register_user(user:RegisterRequest, db: Session = Depends(get_db)):
         "user_id" : new_user.id,
         "email" : new_user.email
             } 
+
+@router.post('/login')
+def login_user(user:LoginRequest, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if not existing_user:
+        HTTPException(status_code = 400, detail = "user not found")
+
+    if not pwd_context.verify(user.password, existing_user.hashed_password):
+        raise HTTPException(status_code = 400, detail = "wrong password")
+    
+
+    return {
+        "message" : "Login Successful",
+        "user_id" : existing_user.id,
+        "name" : existing_user.name,
+        "email": existing_user.email,
+    }
