@@ -1,13 +1,11 @@
 
 
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect, useRef, useCallback} from "react";
 import SideBar from './SideBar';
 import ChatWindow from './ChatWindow';
 function ChatLayout({user, onLogout }) {
 
     const [messages, setMessages] = useState([]);
-    // first one is the state variable and the second is the function to update it
-    //useState is immutable
     const [input, setInput] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
     //useRef() : mutable and does not trigger the re-render
@@ -24,7 +22,7 @@ function ChatLayout({user, onLogout }) {
     useEffect(() => {
         // code inside the useEffect hook runs when the component is mounted
         // it is a trigger
-
+        if (!user || (!user.name && !user.email)) return;
         console.log("initializing the socket");
         const ws = new WebSocket("ws://localhost:8000/ws");
         socket.current = ws;
@@ -86,62 +84,107 @@ function ChatLayout({user, onLogout }) {
     return () => ws?.close();
 }, [user]);
 
+    const username = user?.name || user?.email || "Anonymous";
 
+        const fetchChatHistory = useCallback(async (otherUser) => {
+            try{
+                const currentUserId = user.user_id || user.id;
+                const response = await fetch(`http://127.0.0.1:8000/messages/${currentUserId}/${otherUser.id}`)
 
+                if (response.ok){
+                 
+                    const data = await response.json();
+
+                    const transformedMessages = data.messages.map(msg => ({
+                        user : msg.sender_id === currentUserId ? username : otherUser.name,
+                        to: msg.sender_id === currentUserId ? otherUser.name : username,
+                        message: msg.content
+                    }));
+                    
+                    setMessages(transformedMessages);
+                }
+            } catch(error){
+                console.error("Error fetching the chat history", error)
+            }
+        }, [user, username]);
+
+     
        
-        const username = typeof user === "string" ? user : user.name;
-        const sendMessage = () => {
+
+
+        useEffect(() => {
+            if (selectedUser) {
+                fetchChatHistory(selectedUser);
+            }
+        }, [selectedUser, fetchChatHistory]);
+
+
+     
+       
+    
+        const sendMessage = async () => {
             if (socket.current && input.trim() && selectedUser) {
                
                 const message = {
                     user: username|| "Anonymous",
-                    to: selectedUser.trim(),
+                    to: selectedUser.isGroup? selectedUser.id.toString(): selectedUser.name,
                     message: input.trim(),
+                    isGroup: selectedUser.isGroup || false,
                 };
+
                 if(socket.current.readyState === WebSocket.OPEN) {
                     console.log("Sending", message);
                     socket.current?.send(JSON.stringify(message));
                 } 
+
+                try {
+                    await fetch("http://127.0.0.1:8000/send-message", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type' : 'application/json',
+                        }, 
+                        body : JSON.stringify({
+                            sender_id : user.user_id || user.id,
+                            recipient_id : selectedUser.id,
+                            content : input.trim(),
+                            is_group : selectedUser.isGroup || false,
+                        }),
+                    });
+                }catch(error){
+                    console.error("Unable to send the data to the db", error);
+                }
                 setMessages((prev) => [...prev, message]);
                 setInput("");
             }
         };
 
         const filteredMessages = messages.filter(msg =>{
+            if (!selectedUser) return false;
+
             const msgUser = msg.user?.trim()?.toLowerCase() || "";
             const msgTo = msg.to?.trim()?.toLowerCase() || "";
-            const selected = selectedUser?.trim()?.toLowerCase() || "";
             const currentUser = username?.trim()?.toLowerCase()  || "";
-            return (
-                (msgUser === selected && msgTo  === currentUser ) || 
-                (msgUser === currentUser && msgTo === selected)  
+            
+            if (selectedUser.isGroup){
+                const selectedId = selectedUser.id.toString();
+                return msg.to  === selectedId;
+            }else{
+                const selectedName = selectedUser.name?.trim()?.toLowerCase() || "";     
+                return (
+                    (msgUser === selectedName && msgTo  === currentUser ) || 
+                    (msgUser === currentUser && msgTo === selectedName)  || 
+                    (msgUser === selectedName && msgTo === selectedName) ||
+                    (msgUser === currentUser && msgTo === currentUser)
+
                
             );
+                }
         });
-         
-
-     
+        
         return (
             <div className = "flex h-screen">
                 <SideBar selectedUser = {selectedUser}  setSelectedUser = {setSelectedUser} />
 
-                {/* <div className = "flex-1 overflow-y-auto p-4">
-                    {selectedUser ? (
-                        filteredMessages.length> 0 ? (
-                            filteredMessages.map((msg, idx) => (
-                            <div key = {idx} style={{ border: "1px solid gray", padding: "5px", margin: "5px 0" }}>
-                                <strong>{msg.user}:</strong>{msg.message}
-                            </div>
-                            ))
-                     ) : (
-                        <div>No messages yet.</div>
-                        ) 
-                    ): (
-                        <div>Select a user to chat with.</div>
-                    )}
-                </div>        */}
-    
-    
                 <div className = "chat-window">
                     <ChatWindow 
                     messages = {filteredMessages}
@@ -153,7 +196,7 @@ function ChatLayout({user, onLogout }) {
                 </div>
 
                 <div>
-                    <h2>Welcome {user.name || user.email} </h2>
+                    <h2>{user.name || user.email} </h2>
 
                     <button onClick = {onLogout}>Logout</button>
                 </div>

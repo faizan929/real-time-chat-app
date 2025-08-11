@@ -54,4 +54,5 @@ function ChatWindow({ messages, input, setInput, sendMessage, selectedUser }) {
     );
 
 };
+
 export default ChatWindow;

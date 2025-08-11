@@ -23,7 +23,9 @@ function LoginForm( {onLogin} ) {
         password: ''
     });
 
-  
+
+    const [isRegister, setIsRegister] = useState(true)
+
     function handleChange(event){
         //event.target : the thing that triggered the change 
         const {name, value} = event.target;
@@ -59,7 +61,8 @@ function LoginForm( {onLogin} ) {
             } 
 
             // navigate('/ChatLayout ');
-            onLogin(formData);
+            const data = await response.json()
+            onLogin(data);
             console.log("Registration Successful");
            
 
@@ -86,24 +89,32 @@ function LoginForm( {onLogin} ) {
                 alert("Invalid Credentials");
                 return;
             }
+            
+            const data = await response.json()
+            onLogin(data);
+            console.log("Login successful");
 
-            onLogin(formData);
-            console.log("Login successful")
         }catch(error){
             console.error("Login error", error)
         }
     };
-        
+      
+    
     return(
         <>
-    <form onSubmit = {handleSubmit}>
-        <input 
-            name = "name"
-            type = "text"
-            placeholder = "Enter your name"
-            value = {formData.name}
-            onChange = {handleChange}
-        />
+
+
+    <form onSubmit = {isRegister ? handleSubmit : handleLogin}>
+        {isRegister && (
+            <input 
+                name = "name"
+                type = "text"
+                placeholder = "Enter your name"
+                value = {formData.name}
+                onChange = {handleChange}
+            />
+        )}
+      
 
         <input 
             name = "email"
@@ -120,9 +131,14 @@ function LoginForm( {onLogin} ) {
             value = {formData.password}
             onChange = {handleChange} 
         />
+        
+        <button type = "submit">
+            {isRegister ? "Register" : "Login"}
+        </button>
 
-            <button type = "submit" onClick = {handleSubmit}>Register</button>
-            <button type = "button" onClick = {handleLogin}>Login</button>
+        <button type = "button" onClick = {() => setIsRegister(!isRegister)}>
+            Switch to {isRegister ? "Login" : "Register"}
+        </button>
         </form>
       
         </>

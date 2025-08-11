@@ -56,11 +56,13 @@ def register_user(user:RegisterRequest, db: Session = Depends(get_db)):
 def login_user(user:LoginRequest, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if not existing_user:
-        HTTPException(status_code = 400, detail = "user not found")
+        raise HTTPException(status_code = 400, detail = "user not found")
 
     if not pwd_context.verify(user.password, existing_user.hashed_password):
         raise HTTPException(status_code = 400, detail = "wrong password")
-    
+
+
+    print("debuggin existing user", existing_user.name) 
 
     return {
         "message" : "Login Successful",

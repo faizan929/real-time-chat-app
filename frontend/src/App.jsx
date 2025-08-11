@@ -49,20 +49,18 @@ function App(){
 
   return (
     <>
-      <h1>Whatsapp Clone</h1>
+      <h1>ChatApp</h1>
       <p>{message}</p>
       {isCheckingUser? (
         <p>Checking saved login...</p>
 
         ): !user ? (
           <div>
-          <LoginForm onLogin = {onLogin} />
-          {/* <p>arr u working</p> */}
+            <LoginForm onLogin = {onLogin} />
           </div>
         ): (
         <div>
           <ChatLayout user = {user} onLogout = {onLogout} />
-          {/* <p>are u geting rendered</p> */}
         </div>
         )
 
