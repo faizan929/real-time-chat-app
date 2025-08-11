@@ -1,13 +1,15 @@
 
 
 import React, {useState, useEffect, useRef} from "react";
-import SideBar from './SideBar'
+import SideBar from './SideBar';
+import ChatWindow from './ChatWindow';
 function ChatLayout({user}) {
 
     const [messages, setMessages] = useState([]);
     // first one is the state variable and the second is the function to update it
     //useState is immutable
     const [input, setInput] = useState("");
+    const [selectedUser, setSelectedUser] = useState(null);
     //useRef() : mutable and does not trigger the re-render
     const socket = useRef(null);
 
@@ -31,7 +33,7 @@ function ChatLayout({user}) {
             console.log(" websockect connected");
 
             ws.send(JSON.stringify({
-                user: user,
+                user: typeof user === "string" ? user : user.name,
                 type: "connect",
                 message: "User connected"
                 
@@ -47,10 +49,33 @@ function ChatLayout({user}) {
         ws.onmessage = (event) => {
             console.log("onmessage is firing")
             console.log("i am receiving", event.data)
-            const data = JSON.parse(event.data);
-            setMessages((prev) => [...prev, data]);
+            try{
+                const data = JSON.parse(event.data);
+                if (data.type === "user_list"){
+                    return;
+                }
 
-        };
+                if(data.type === "ack"){
+                    console.log("Message acknowledged by server");
+                    return;
+                }
+
+
+                if (data.message && data.user){
+                    setMessages((prev) => [...prev, {
+                        user: data.user,
+                        to: data.to || "all",
+                        message: data.message
+                    }]);
+                }
+          
+            }catch(error){
+                console.log("error parsing error:", error);
+
+        }
+    };
+
+
 
         ws.onclose = () => {
             console.log("Websocket disconnected");
@@ -63,53 +88,71 @@ function ChatLayout({user}) {
 
 
 
+       
+        const username = typeof user === "string" ? user : user.name;
         const sendMessage = () => {
-            if (socket.current && input.trim()) {
+            if (socket.current && input.trim() && selectedUser) {
+               
                 const message = {
-                    user: user || "Anonymous",
+                    user: username|| "Anonymous",
+                    to: selectedUser.trim(),
                     message: input.trim(),
                 };
-                if(socket.current?.readyState === WebSocket.OPEN) {
+                if(socket.current.readyState === WebSocket.OPEN) {
                     console.log("Sending", message);
-                    socket.current.send(JSON.stringify(message));
+                    socket.current?.send(JSON.stringify(message));
                 } 
-                // setMessages((prev) => [...prev, message]);
+                setMessages((prev) => [...prev, message]);
                 setInput("");
             }
         };
-        const handleKeyDown = (e) => {
-            if (e.key === "Enter") {
-                sendMessage();
-            }
-        }
 
+        const filteredMessages = messages.filter(msg =>{
+            const msgUser = msg.user?.trim()?.toLowerCase() || "";
+            const msgTo = msg.to?.trim()?.toLowerCase() || "";
+            const selected = selectedUser?.trim()?.toLowerCase() || "";
+            const currentUser = username?.trim()?.toLowerCase()  || "";
+            return (
+                (msgUser === selected && msgTo  === currentUser ) || 
+                (msgUser === currentUser && msgTo === selected)  
+               
+            );
+        });
+         
+
+     
         return (
             <div className = "flex h-screen">
-                <SideBar />
-                <div className = "flex-1 overflow-y-auto p-4">
-                    {messages.map((msg, idx) => (
-                        <div key = {idx}>
-                            <strong>{msg.user}:</strong> {msg.message}
-                        </div> 
-                    ))}
-                </div>
+                <SideBar selectedUser = {selectedUser}  setSelectedUser = {setSelectedUser} />
 
-                <div className = "p-4 border-t flex">
-                    <input
-                        className= "flex-1 border rounded p-2"
-                        value = {input}
-                        onChange = {(e) => setInput(e.target.value)}
-                        onKeyDown = {handleKeyDown}
-                        placeholder = "Type your message"
+                {/* <div className = "flex-1 overflow-y-auto p-4">
+                    {selectedUser ? (
+                        filteredMessages.length> 0 ? (
+                            filteredMessages.map((msg, idx) => (
+                            <div key = {idx} style={{ border: "1px solid gray", padding: "5px", margin: "5px 0" }}>
+                                <strong>{msg.user}:</strong>{msg.message}
+                            </div>
+                            ))
+                     ) : (
+                        <div>No messages yet.</div>
+                        ) 
+                    ): (
+                        <div>Select a user to chat with.</div>
+                    )}
+                </div>        */}
+    
+    
+                <div className = "chat-window">
+                    <ChatWindow 
+                    messages = {filteredMessages}
+                    input = {input}
+                    setInput = {setInput}
+                    sendMessage = {sendMessage}
+                    selectedUser = {selectedUser}
                     />
-                    <button 
-                        className = "ml-2 bg-blue-500 text-white px-4 py-2 rounded"
-                        onClick = {sendMessage}
-                    >
-                        Send
-                    </button>
                 </div>
             </div>
+            
         );
 } 
 

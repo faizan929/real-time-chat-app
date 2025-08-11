@@ -38,44 +38,106 @@ connected_users = {}
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("connection accepted")
-    while True:
-        try:
+    sender_username = None 
+    
+    try:
+        while True:
             data = await websocket.receive_text()
             parsed = json.loads(data)
-            username = parsed.get("user")
-            connected_users[username] = websocket
-            response = {
-                "user": "server", 
-                "message": f"Frontend said: {parsed.get('message', '')}" 
+            sender_username = parsed.get("user")
+            msg_type = parsed.get("type","message")
+
+            if msg_type == "connect":
+                connected_users[sender_username] = websocket
+                await update_user_list()
+                continue
+
+            recipient_username = parsed.get("to")
+            msg_txt = parsed.get("message")
+
+            if not sender_username or not msg_txt:
+                continue
+
+            connected_users[sender_username] = websocket
+
+            message_payload = {
+                "user": sender_username, 
+                "to": recipient_username,
+                "message": msg_txt
             }
+
+            if recipient_username and recipient_username in connected_users:
+                print("Responding", message_payload)
+                recipient_ws = connected_users[recipient_username]
+                try:
+                    await recipient_ws.send_text(json.dumps(message_payload))
+                except:
+                    connected_users.pop(recipient_username, None)
+
+
+            await websocket.send_text(json.dumps({
+                "type": "ack",
+                "status": "message_received"
+            }))
             
-            print("responding with", response) 
-            user_list = list(connected_users.keys())
-            for ws in connected_users.values():
-                await ws.send_text(json.dumps({
-                    "type" : "user_list",
-                    "users" : user_list
-                }) 
-)
+    except WebSocketDisconnect:
+        print("Client Disconnected ")
+        
+               
+    except Exception as e:
+            print(f"Websocket error, {e}")
+    finally:
+        if sender_username and sender_username in connected_users:
+            connected_users.pop(sender_username, None)
+            await update_user_list()
+                
+            # disconnected_user = None
+            # for name, ws in connected_users.items():
+            #     if ws == websocket:
+            #         disconnected_user = name
+            #         break
+
+            # user_list = list(connected_users.keys())
+            # for ws in connected_users.values():
+            #     await ws.send_text(json.dumps({
+            #         "type" : "user_list",
+            #         "users" : user_list
+            #     }) 
+
+async def update_user_list():
+    user_list = list(connected_users.keys())
+    disconnected_users = []
+    for username, ws in connected_users.items():
+        try:
+            await ws.send_text(json.dumps({
+                "type": "user_list",
+                "users": user_list
+            }))
+        except:
+            disconnected_users.append(username)
+    
+    for username in disconnected_users:
+        connected_users.pop(username, None)
+
             
                
-        except WebSocketDisconnect:
-            print("Client Disconnected ")
-            disconnected_user = None
-            for name, ws in connected_users.items():
-                if ws == websocket:
-                    disconnected_user = name
-                    break
+        # except WebSocketDisconnect:
+        #     print("Client Disconnected ")
+        #     disconnected_user = None
+        #     for name, ws in connected_users.items():
+        #         if ws == websocket:
+        #             disconnected_user = name
+        #             break
            
-            if disconnected_user:
-                connected_users.pop(disconnected_user)
+        #     if disconnected_user:
+        #         connected_users.pop(disconnected_user)
 
-        except Exception as e:
-            print(f"Websocket error: {e}")
-            break
+        # except Exception as e:
+        #     print(f"Websocket error: {e}")
+        #     break
     
 
 if __name__ == "__main__":
     import uvicorn 
-    uvicorn.run(app, host = '127.0.0.1', port = 8000)
+    uvicorn.run(app, host = '127.0.0.1', port = 8000, reload = False)
 

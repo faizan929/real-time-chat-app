@@ -6,10 +6,6 @@ import LoginForm from "./components/LoginForm";
 
 
 
-
-
-
-
 function App(){
   const [message, setMessage] = useState("Loading..");
   const [user, setUser] = useState(null);

@@ -3,7 +3,7 @@
 import React from "react"
 import {useState, useEffect} from "react";
 
-function SideBar(){
+function SideBar({ selectedUser, setSelectedUser }){
     // create the states to manage
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -31,7 +31,15 @@ function SideBar(){
         <h2>Users</h2>
         <ul>
             {users.map(user => (
-                <li key = {user.id}>{user.name}</li>
+                <li key = {user.id}
+                    onClick = {() => setSelectedUser(user.name)}
+                    style = {{
+                        cursor : "pointer",
+                        fontWeight : user.name === selectedUser ? "bold" : "normal"
+                    }}
+                >
+                    {user.name}
+                </li>
             ))}
         </ul>
         
