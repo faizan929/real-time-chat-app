@@ -24,7 +24,7 @@ function App(){
 
 
   useEffect(() => {
-    fetch("http://localhost:8000/")
+    fetch("https://creative-perfection-production.up.railway.app/")
       .then((res) => res.json())
       .then((data) => setMessage(data.message))
       .catch((err) => setMessage("Error: " + err.message));

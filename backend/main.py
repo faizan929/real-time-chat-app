@@ -13,9 +13,7 @@ Base.metadata.create_all(bind = engine)
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173"
-]
+origins = ["https://real-time-chat-app-seven-gamma.vercel.app/"]
 
 
 app.include_router(registerRoutes.router)

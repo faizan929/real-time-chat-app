@@ -15,7 +15,7 @@ function SideBar({ selectedUser, setSelectedUser }){
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/users")
+        fetch("https://creative-perfection-production.up.railway.app/api/users")
             .then(res => res.json())
             .then(data => {
                 setUsers(data);
@@ -27,7 +27,7 @@ function SideBar({ selectedUser, setSelectedUser }){
             });
 
 
-        fetch("http://localhost:8000/api/groups")
+        fetch("https://creative-perfection-production.up.railway.app/api/groups")
             .then((res) => res.json())
             .then((data) => {
                 const groupsWithFlag = data.map((group) => ({...group, isGroup : true }));
@@ -59,7 +59,7 @@ function SideBar({ selectedUser, setSelectedUser }){
     const createGroup = () => {
         if(!groupName.trim()) return;
 
-        fetch("http://localhost:8000/api/groups", {
+        fetch("https://creative-perfection-production.up.railway.app/api/groups", {
             method : 'POST',
             headers : {
                 "Content-Type" : "application/json"

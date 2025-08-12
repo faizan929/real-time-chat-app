@@ -71,9 +71,9 @@ function ChatLayout({user, onLogout }) {
                 const currentUserId = user.user_id || user.id;
                 let response;
                 if (otherUser.isGroup) {
-                    response =await fetch(`http://127.0.0.1:8000/group-messages/${otherUser.id}`)
+                    response =await fetch(`https://creative-perfection-production.up.railway.app/api/group-messages/${otherUser.id}`)
                 }else{
-                    response =  await fetch(`http://127.0.0.1:8000/messages/${currentUserId}/${otherUser.id}`)
+                    response =  await fetch(`https://creative-perfection-production.up.railway.app/api/messages/${currentUserId}/${otherUser.id}`)
                 }
 
                 if (response.ok) {
@@ -122,7 +122,7 @@ function ChatLayout({user, onLogout }) {
                     socket.current?.send(JSON.stringify(message));
                 } 
                 try {
-                    await fetch("http://127.0.0.1:8000/send-message", {
+                    await fetch("https://creative-perfection-production.up.railway.app/api/send-message", {
                         method: 'POST',
                         headers: {
                             'Content-Type' : 'application/json',

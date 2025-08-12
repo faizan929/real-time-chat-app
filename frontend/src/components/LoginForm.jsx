@@ -25,7 +25,7 @@ function LoginForm( {onLogin} ) {
     const handleSubmit = async (event) => {
         event.preventDefault();              
         try{
-            const response = await fetch("http://127.0.0.1:8000/register", {
+            const response = await fetch("https://creative-perfection-production.up.railway.app/api/register", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ function LoginForm( {onLogin} ) {
     const handleLogin = async (event) => {
         event.preventDefault();
         try{
-            const response = await fetch("http://127.0.0.1:8000/login",{
+            const response = await fetch("https://creative-perfection-production.up.railway.app/api/login",{
                 method: 'POST',
                 headers: {
                     'Content-Type' :"application/json",
