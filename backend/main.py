@@ -17,9 +17,9 @@ origins = ["https://real-time-chat-app-git-main-faizan929s-projects.vercel.app"]
 
 
 
-app.include_router(registerRoutes.router)
-app.include_router(userRoutes.router)
-app.include_router(messageRoutes.router)
+app.include_router(registerRoutes.router, prefix = "/api")
+app.include_router(userRoutes.router, prefix = "/api")
+app.include_router(messageRoutes.router, prefix = "/api")
 
 
 
