@@ -13,7 +13,8 @@ Base.metadata.create_all(bind = engine)
 
 app = FastAPI()
 
-origins = ["https://real-time-chat-app-git-main-faizan929s-projects.vercel.app/"]
+origins = ["https://real-time-chat-app-git-main-faizan929s-projects.vercel.app"]
+
 
 
 app.include_router(registerRoutes.router)
@@ -21,7 +22,7 @@ app.include_router(userRoutes.router)
 app.include_router(messageRoutes.router)
 
 
-# FRONTEND WILL ACCESS THE BACKEND HERE
+
 
 app.add_middleware(
     CORSMiddleware,
