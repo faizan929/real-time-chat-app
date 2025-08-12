@@ -48,8 +48,7 @@ function App(){
 
 
   return (
-    <>
-      <h1>ChatApp</h1>
+    <div> 
       <p>{message}</p>
       {isCheckingUser? (
         <p>Checking saved login...</p>
@@ -66,7 +65,7 @@ function App(){
 
       }
 
-    </>
+    </div>
   );
 }
 

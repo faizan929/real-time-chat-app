@@ -38,3 +38,15 @@ group_members = Table (
     Column("group_id", Integer, ForeignKey("groups.id")),
     Column("user_id", Integer, ForeignKey("users.id")),
 )
+
+class GroupMessage(Base):
+    __tablename__ = "group_messages"
+    id = Column(Integer, primary_key = True, index = True)
+    sender_id = Column(Integer, ForeignKey("users.id") )
+    group_id = Column(Integer, ForeignKey("groups.id") )
+    content = Column(String)
+    timestamp = Column(DateTime, default = datetime.now)
+
+
+    sender = relationship("User", foreign_keys =[sender_id])
+    group = relationship("Group", foreign_keys=[group_id])
