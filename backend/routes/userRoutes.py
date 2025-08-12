@@ -9,12 +9,12 @@ from typing import List, Optional
 
 router = APIRouter()
 
-@router.get("/api/users")
+@router.get("/users")
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
     return users
 
-@router.get('/api/groups')
+@router.get('/groups')
 def get_groups(db: Session = Depends(get_db)):
     groups = db.query(Group).all()
     result = []
@@ -33,7 +33,7 @@ class GroupCreate(BaseModel):
     member_ids: Optional[List[int]] = []
 
 
-@router.post('/api/groups')
+@router.post('/groups')
 def create_group(group: GroupCreate, db: Session = Depends(get_db)):
     existing = db.query(Group).filter(Group.name == group.name).first()
     if existing:
