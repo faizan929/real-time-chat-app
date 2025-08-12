@@ -18,7 +18,7 @@ function ChatLayout({user, onLogout }) {
     useEffect(() => {
         if (!user || (!user.name && !user.email)) return;
         console.log("initializing the socket");
-        const ws = new WebSocket("ws://localhost:8000/ws");
+        const ws = new WebSocket("wss://creative-perfection-production.up.railway.app/ws");
         socket.current = ws;
 
         ws.onopen = () => {
