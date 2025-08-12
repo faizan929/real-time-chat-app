@@ -12,18 +12,18 @@ A real-time messaging web application built with React (frontend) and FastAPI (b
 - Database Design: SQLAlchemy for relational data models.
 
 # Tech Stack
-- Frontend: React, React Hooks, WebSocket client
-- Backend: FastAPI (Python), SQLAlchemy ORM, WebSocket server
-- Database: (Your database here, e.g., PostgreSQL, SQLite)
-- Others: Tailwind CSS for styling, JWT or session-based authentication.
+- Frontend: React, React Hooks, WebSocket client.
+- Backend: FastAPI (Python), SQLAlchemy ORM, WebSocket server.
+- Database: Postgresql.
+- Others: Tailwind CSS for styling.
 
 # How to Run
-- Clone the repo
-- Setup backend environment and install dependencies
-- Run FastAPI backend server
-- Setup frontend environment and install dependencies
-- Run React frontend server
-- Open http://localhost:5173 (or your frontend URL)
+- Clone the repo.
+- Setup backend environment and install dependencies.
+- Run FastAPI backend server.
+- Setup frontend environment and install dependencies.
+- Run React frontend server.
+- Open http://localhost:5173.
 
 # Next Steps
 - Add typing indicators, read receipts.
