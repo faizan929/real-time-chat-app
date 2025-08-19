@@ -6,10 +6,13 @@ import LoginForm from "./components/LoginForm";
 
 
 
+
 function App(){
   const [message, setMessage] = useState("Loading..");
   const [user, setUser] = useState(null);
   const [isCheckingUser, setIsCheckingUser] =  useState(true);
+  
+  const API_URL = import.meta.env.VITE_URL;
 
   useEffect(() => {
     const savedUser = localStorage.getItem('whatsapp_user');
@@ -24,11 +27,11 @@ function App(){
 
 
   useEffect(() => {
-    fetch("https://creative-perfection-production.up.railway.app/")
+    fetch(`${API_URL}/health`)
       .then((res) => res.json())
       .then((data) => setMessage(data.message))
       .catch((err) => setMessage("Error: " + err.message));
-  }, []);
+  }, [API_URL]);
 
 
 

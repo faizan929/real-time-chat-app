@@ -8,20 +8,25 @@ import ChatWindow from './ChatWindow';
 
 
 function ChatLayout({user, onLogout }) {
-
+    // console.log("user object in chatlayout:", user);
+    // console.log("user name specifically:", user?.name);
+    // console.log("username type:", typeof user?.name);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const socket = useRef(null);
-
+    const API_URL = import.meta.env.VITE_URL;
+    // const API_URL = import.meta.env.VITE_URL;
     useEffect(() => {
         if (!user || (!user.name && !user.email)) return;
         console.log("initializing the socket");
-        const ws = new WebSocket("wss://creative-perfection-production.up.railway.app/ws");
+        // const ws = new WebSocket("wss://creative-perfection-production.up.railway.app/ws");
+        const ws = new WebSocket("ws://localhost:8000/ws");
         socket.current = ws;
 
         ws.onopen = () => {
+            console.log("websocket connection opened successfully")
             console.log(" websockect connected");
             ws.send(JSON.stringify({
                 user: typeof user === "string" ? user : user.name,
@@ -71,9 +76,9 @@ function ChatLayout({user, onLogout }) {
                 const currentUserId = user.user_id || user.id;
                 let response;
                 if (otherUser.isGroup) {
-                    response =await fetch(`https://creative-perfection-production.up.railway.app/api/group-messages/${otherUser.id}`)
+                    response =await fetch(`${API_URL}/group-messages/${otherUser.id}`)
                 }else{
-                    response =  await fetch(`https://creative-perfection-production.up.railway.app/api/messages/${currentUserId}/${otherUser.id}`)
+                    response =  await fetch(`${API_URL}/messages/${currentUserId}/${otherUser.id}`)
                 }
 
                 if (response.ok) {
@@ -100,7 +105,7 @@ function ChatLayout({user, onLogout }) {
             } catch(error){
                 console.error("Error fetching the chat history", error)
             }
-        }, [user, username]);
+        }, [user, username, API_URL]);
 
     useEffect(() => {
         if (selectedUser) {
@@ -122,7 +127,7 @@ function ChatLayout({user, onLogout }) {
                     socket.current?.send(JSON.stringify(message));
                 } 
                 try {
-                    await fetch("https://creative-perfection-production.up.railway.app/api/send-message", {
+                    await fetch(`${API_URL}/send-message`, {
                         method: 'POST',
                         headers: {
                             'Content-Type' : 'application/json',
@@ -199,33 +204,32 @@ function ChatLayout({user, onLogout }) {
                             {user.name || user.email} 
                     </span>
                 </button>
+                {showUserMenu && (
+                    <div className = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-20">
+                        <div className = "px-4 py-2 border-b border-gray-100">
+                            <p className="text-sm font-medium text-gray-900">
+                                {user.name || "Anonymous"}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                                    {user.email}
+                            </p>
+                        </div>
 
-                <div className = "absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-20">
-                    <div className = "px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">
-                            {user.name || 'Anonymous'}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                                {user.email}
-                        </p>
+                        <button className = "flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                <Settings className="w-4 h-4" />
+                                <span>Settings</span>
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            <span>Logout</span>
+                        </button>
                     </div>
-
-                    <button className = "flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            <Settings className="w-4 h-4" />
-                            <span>Settings</span>
-                    </button>
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                    </button>
-                </div>
-                    {/* onClick = {onLogout}>Logout</button> */}
-            </div>
+                )}
+            </div> 
         </div>
-
             {showUserMenu && (
                 <div className="fixed inset-0 z-0" onClick={() => setShowUserMenu(false)}/>
             )}

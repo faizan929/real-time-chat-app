@@ -49,7 +49,9 @@ def register_user(user:RegisterRequest, db: Session = Depends(get_db)):
     return {
         "message" : "user registered successfully ",
         "user_id" : new_user.id,
-        "email" : new_user.email
+        "email" : new_user.email,
+        "name" : new_user.name
+
             } 
 
 @router.post('/login')
@@ -70,3 +72,4 @@ def login_user(user:LoginRequest, db: Session = Depends(get_db)):
         "name" : existing_user.name,
         "email": existing_user.email,
     }
+

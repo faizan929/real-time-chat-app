@@ -14,8 +14,9 @@ function SideBar({ selectedUser, setSelectedUser }){
     const [showCreateGroup, setShowCreateGroup] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
+    const API_URL = import.meta.env.VITE_URL;
     useEffect(() => {
-        fetch("https://creative-perfection-production.up.railway.app/api/users")
+        fetch(`${API_URL}/users`)
             .then(res => res.json())
             .then(data => {
                 setUsers(data);
@@ -27,7 +28,7 @@ function SideBar({ selectedUser, setSelectedUser }){
             });
 
 
-        fetch("https://creative-perfection-production.up.railway.app/api/groups")
+        fetch(`${API_URL}/groups`)
             .then((res) => res.json())
             .then((data) => {
                 const groupsWithFlag = data.map((group) => ({...group, isGroup : true }));
@@ -38,7 +39,7 @@ function SideBar({ selectedUser, setSelectedUser }){
                 console.log("Error fetching groups", err)
                 setLoadingGroups(false);
             });
-    }, []);  
+    }, [API_URL]);  
 
     if (loadingUsers || loadingGroups) {
         return (
@@ -59,7 +60,7 @@ function SideBar({ selectedUser, setSelectedUser }){
     const createGroup = () => {
         if(!groupName.trim()) return;
 
-        fetch("https://creative-perfection-production.up.railway.app/api/groups", {
+        fetch(`${API_URL}/groups`, {
             method : 'POST',
             headers : {
                 "Content-Type" : "application/json"

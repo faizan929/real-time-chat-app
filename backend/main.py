@@ -13,7 +13,9 @@ Base.metadata.create_all(bind = engine)
 
 app = FastAPI()
 
-origins = ["https://real-time-chat-app-git-main-faizan929s-projects.vercel.app"]
+origins = ["https://real-time-chat-app-git-main-faizan929s-projects.vercel.app",
+           "http://localhost:5173",
+           "http://127.0.0.1:5173" ]
 
 
 
@@ -26,13 +28,18 @@ app.include_router(messageRoutes.router, prefix = "/api")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = origins,   # ["http://localhost:5173", "http://127.0.0.1:5173"], 
+    allow_origins = ["*"], 
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"],
 )
 
 @app.get("/")
+def root():
+    return {"message": "Backend is running"}
+
+
+@app.get("/api/health")
 def read_root():
     return {"message": "FastAPI is running"}
 
@@ -117,5 +124,5 @@ if __name__ == "__main__":
     import uvicorn 
     import os 
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host = '0.0.0.1', port = port, reload = False)
+    uvicorn.run(app, host = '127.0.0.1', port = port, reload = False)
 

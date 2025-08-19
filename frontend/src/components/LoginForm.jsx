@@ -22,10 +22,12 @@ function LoginForm( {onLogin} ) {
         }));
     }
 
+    const API_URL = import.meta.env.VITE_URL;
+    
     const handleSubmit = async (event) => {
         event.preventDefault();              
         try{
-            const response = await fetch("https://creative-perfection-production.up.railway.app/api/register", {
+            const response = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +53,7 @@ function LoginForm( {onLogin} ) {
     const handleLogin = async (event) => {
         event.preventDefault();
         try{
-            const response = await fetch("https://creative-perfection-production.up.railway.app/api/login",{
+            const response = await fetch(`${API_URL}/login`,{
                 method: 'POST',
                 headers: {
                     'Content-Type' :"application/json",
