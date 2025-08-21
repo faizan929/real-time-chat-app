@@ -19,7 +19,7 @@ class Message(Base):
     sender_id = Column(Integer, ForeignKey("users.id"))
     recipient_id = Column(Integer, ForeignKey("users.id"))
     content = Column(String)
-    timestamp = Column(DateTime, default = datetime.now)
+    timestamp = Column(DateTime(timezone = True), server_default = func.now())
 
 
     sender = relationship("User", foreign_keys = [sender_id])
@@ -45,7 +45,7 @@ class GroupMessage(Base):
     sender_id = Column(Integer, ForeignKey("users.id") )
     group_id = Column(Integer, ForeignKey("groups.id") )
     content = Column(String)
-    timestamp = Column(DateTime, default = datetime.now)
+    timestamp = Column(DateTime(timezone = True), server_default = func.now())
 
 
     sender = relationship("User", foreign_keys =[sender_id])

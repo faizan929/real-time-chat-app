@@ -46,6 +46,11 @@ def read_root():
 connected_users = {}
 
 
+group_members = {
+    "newgrouptest": ["Faizan Sheikh", "Aman Sheikh", "testlogin"],
+    "family": ["Faizan Sheikh", "Brother", "Mom"],
+}
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -64,8 +69,56 @@ async def websocket_endpoint(websocket: WebSocket):
                 await update_user_list()
                 continue
 
+
+            if msg_type == "typing":
+                recipient_username = parsed.get("to")
+                if recipient_username in connected_users:
+                    await connected_users[recipient_username].send_text(json.dumps({
+                        "type" : "typing",
+                        "from" : sender_username
+                    }))
+                    continue
+            if msg_type == "stop_typing":
+                 recipient_username = parsed.get("to")
+                 if recipient_username in connected_users:
+                    await connected_users[recipient_username].send_text(json.dumps({
+                        "type" : "stop_typing",
+                        "from" : sender_username
+                    }))
+                    continue
+          
+                
+            
             recipient_username = parsed.get("to")
             msg_txt = parsed.get("message")
+  
+            
+            if msg_type == "group_message":
+                group_id = parsed.get("to")
+                msg_txt = parsed.get("message")
+
+                if not group_id or not msg_txt:
+                    continue
+                    
+               
+                message_payload = {
+                    "type": "group_message",
+                    "group": group_id,
+                    "from": sender_username, 
+                    "message": msg_txt
+                
+                }
+
+                members = group_members.get(group_id, [])
+                for member in members:
+                    if member in connected_users and member != sender_username:
+                        try:
+                            await connected_users[member].send_text(json.dumps(message_payload))
+                        except:
+                            connected_users.pop(member, None)
+
+                continue
+
 
             if not sender_username or not msg_txt:
                 continue

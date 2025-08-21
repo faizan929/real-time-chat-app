@@ -43,7 +43,7 @@ DESCRIPTION:
 For Resume:
 Project Title: "Real-time Chat Application"
 Description: "Developed a full-stack chat application with individual and group messaging capabilities using React.js, FastAPI, and WebSocket. Implemented user authentication, persistent message storage, and real-time communication features."
-Tech Stack: React.js, FastAPI, SQLAlchemy, WebSocket, SQLite/PostgreSQL
+Tech Stack: React.js, FastAPI, SQLAlchemy, WebSocket, PostgreSQL
 
 ReadMe.md
 4. Add a Simple README

@@ -1,17 +1,43 @@
 
 
 import { useRef, useEffect } from "react";
-import {Send, User, Users} from "lucide-react"
+import {Send, User, Users} from "lucide-react";
+import dayjs from "dayjs";
 
-function ChatWindow({ messages, input, setInput, sendMessage, selectedUser, user }) {
+function ChatWindow({ messages, input, setInput, sendMessage, selectedUser, user, ws, typingUser}) {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
     }, [messages])
 
-    const onChange = (e) => setInput(e.target.value);
+    const onChange = (e) => {
+        setInput(e.target.value);
 
+        if (ws.current && selectedUser){
+            const name = typeof user === "string" ? user : user?.name;
+            const to = selectedUser.name;
+
+            ws.current?.send(JSON.stringify({
+                type: "typing",
+                user: name,
+                to,
+                isGroup: selectedUser.isGroup || false
+            }));
+
+
+            if (window.typingTimeout) clearTimeout(window.typingTimeout);
+        
+            window.typingTimeout = setTimeout(() => {
+                ws.current?.send(JSON.stringify({
+                    type: "stop_typing",
+                    user: name,
+                    to,
+                    isGroup: selectedUser.isGroup || false,
+                }));
+            }, 2000);
+        }
+    }
     const onSubmit = (e) => {
         e.preventDefault();
         sendMessage();
@@ -22,6 +48,10 @@ function ChatWindow({ messages, input, setInput, sendMessage, selectedUser, user
             e.preventDefault();
             onSubmit(e);
         }
+    }
+
+    function formatTimeStamp(ts){
+        return dayjs(ts).format("h:mm: A");
     }
     
     return (
@@ -54,8 +84,10 @@ function ChatWindow({ messages, input, setInput, sendMessage, selectedUser, user
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {selectedUser ? (
-                messages && messages.length > 0 ? (
-                messages.map((msg, idx) => {
+               messages && messages.length > 0 ? (
+                <>
+                {messages.map((msg, idx) => {
+                
                     const isCurrentUser = msg.user === (typeof user === "string" ? user : user?.name);
                         return (
                             <div
@@ -77,10 +109,21 @@ function ChatWindow({ messages, input, setInput, sendMessage, selectedUser, user
                                     <div className="break-words">
                                         {msg.message}
                                     </div>
+                                    <span className = "text-xs text-gray-500 mt-1 self-end">
+                                        {formatTimeStamp(msg.timestamp)}
+                                    </span>
                                 </div>
                             </div>
-                        );
-                })
+                        );    
+                    
+                    })}
+                    {typingUser && (
+                        <div className = "text-xs text-gray-500 italic p-2">
+                            {typingUser} is typing...
+                        </div>
+                        )}
+                </>
+
                 ) : (
                 <div className="flex items-center justify-center h-full">
                     <div className="text-center">

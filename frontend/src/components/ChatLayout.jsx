@@ -15,7 +15,9 @@ function ChatLayout({user, onLogout }) {
     const [input, setInput] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [typingUser, setTypingUser] = useState(null);
     const socket = useRef(null);
+
     const API_URL = import.meta.env.VITE_URL;
     // const API_URL = import.meta.env.VITE_URL;
     useEffect(() => {
@@ -51,6 +53,18 @@ function ChatLayout({user, onLogout }) {
                     console.log("Message acknowledged by server");
                     return;
                 }
+
+                if (data.type === "group_message"){
+                    setMessages((prev) => [...prev, {
+                        user: data.from,
+                        to: String(data.group),
+                        message: data.message,
+                        isGroup: true,
+                        timestamp: data.timestamp || new Date().toISOString()
+                    }]);
+                    return;
+                }
+
                 if (data.message && data.user){
                     setMessages((prev) => [...prev, {
                         user: data.user,
@@ -58,6 +72,17 @@ function ChatLayout({user, onLogout }) {
                         message: data.message
                     }]);
                 }
+
+
+                if (data.type === "typing"){
+                    setTypingUser(data.from);
+
+                }
+
+                if (data.type === "stop_typing"){
+                    setTypingUser(null);
+                }
+                
             }catch(error){
                 console.log("error parsing error:", error);
             }
@@ -69,6 +94,11 @@ function ChatLayout({user, onLogout }) {
 
     return () => ws?.close();
     }, [user]);
+     
+    useEffect(() => {
+        setTypingUser(null);
+    }, [selectedUser]);
+
 
     const username = user?.name || user?.email || "Anonymous";
         const fetchChatHistory = useCallback(async (otherUser) => {
@@ -89,6 +119,7 @@ function ChatLayout({user, onLogout }) {
                         user : msg.sender_id === currentUserId ? username : `User ${msg.sender_id}`,
                         to: otherUser.id.toString(),
                         message: msg.content,
+                        timestamp: msg.timestamp,
                         isGroup: true,
                         }));
                         setMessages(transformedMessages);
@@ -97,6 +128,7 @@ function ChatLayout({user, onLogout }) {
                         user : msg.sender_id === currentUserId ? username : otherUser.name,
                         to: msg.sender_id === currentUserId ? otherUser.name : username,
                         message: msg.content,
+                        timestamp: msg.timestamp,
                         isGroup:false,
                         }));
                         setMessages(transformedMessages);
@@ -115,13 +147,20 @@ function ChatLayout({user, onLogout }) {
 
 
     const sendMessage = async () => {
-        if (socket.current && input.trim() && selectedUser) {  
+        if (socket.current && input.trim() && selectedUser) { 
+            const toValue = selectedUser.isGroup
+                ? String(selectedUser.name)
+                : selectedUser.name;
+                
+                
             const message = {
+                    type: selectedUser.isGroup? "group_message" : "message",
                     user: username|| "Anonymous",
-                    to: selectedUser.isGroup? selectedUser.id.toString(): selectedUser.name,
+                    to: toValue,
                     message: input.trim(),
                     isGroup: selectedUser.isGroup || false,
                 };
+
                 if(socket.current.readyState === WebSocket.OPEN) {
                     console.log("Sending", message);
                     socket.current?.send(JSON.stringify(message));
@@ -171,6 +210,8 @@ function ChatLayout({user, onLogout }) {
         }
         onLogout();
     }
+
+ 
         
     return (
     
@@ -188,6 +229,9 @@ function ChatLayout({user, onLogout }) {
                         setInput = {setInput}
                         sendMessage = {sendMessage}
                         selectedUser = {selectedUser}
+                        user = {user}
+                        ws = {socket}
+                        typingUser = {typingUser}
                     />
                 </div>
         </div>
