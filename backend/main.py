@@ -1,5 +1,3 @@
- 
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import json
@@ -13,8 +11,7 @@ Base.metadata.create_all(bind = engine)
 
 app = FastAPI()
 
-origins = ["https://real-time-chat-app-git-main-faizan929s-projects.vercel.app",
-           "http://localhost:5173",
+origins = [ "http://localhost:5173",
            "http://127.0.0.1:5173" ]
 
 
@@ -44,12 +41,6 @@ def read_root():
     return {"message": "FastAPI is running"}
 
 connected_users = {}
-
-
-group_members = {
-    "newgrouptest": ["Faizan Sheikh", "Aman Sheikh", "testlogin"],
-    "family": ["Faizan Sheikh", "Brother", "Mom"],
-}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -177,5 +168,9 @@ if __name__ == "__main__":
     import uvicorn 
     import os 
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host = '127.0.0.1', port = port, reload = False)
+    uvicorn.run(app,
+             	host = "127.0.0.1",
+				port = port,
+				reload = False
+				)
 
