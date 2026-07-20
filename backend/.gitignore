@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 __pyache__/
 *.pyc
-=======
 # Environment variables
 .env
 
@@ -18,4 +16,3 @@ __pycache__/
 
 # OS files
 .DS_Store
->>>>>>> feature/frontend-backend-connection
