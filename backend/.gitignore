@@ -1,4 +1,16 @@
-__pyache__/
-*.pyc
+# Environment variables
 .env
+
+# Virtual environment
 venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+
+# OS files
+.DS_Store
