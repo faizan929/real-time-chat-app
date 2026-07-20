@@ -64,7 +64,6 @@ def login_user(user:LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code = 400, detail = "wrong password")
 
 
-    print("debuggin existing user", existing_user.name) 
 
     return {
         "message" : "Login Successful",
